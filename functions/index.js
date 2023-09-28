@@ -8,14 +8,14 @@ const firebase = admin.initializeApp();
 const app = express();
 app.use(cors());
 
-app.get("/user", async (request, response) => {
-    const snapshot = await firebase.firestore().collection("users").get();
-    const users = snapshot.docs.map(document => document.data());
-    response.send(users);
+app.get("/contestant", async (request, response) => {
+    const snapshot = await firebase.firestore().collection("contestants").get();
+    const contestants = snapshot.docs.map(document => document.data());
+    response.send(contestants);
 });
 
-app.get("/user/:id", async (request, response) => {
-    const snapshot = await firebase.firestore().collection("users").doc(request.params.id).get();
+app.get("/contestant/:id", async (request, response) => {
+    const snapshot = await firebase.firestore().collection("contestants").doc(request.params.id).get();
     response.send(snapshot.data());
 });
 
