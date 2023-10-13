@@ -41,4 +41,5 @@ app.get("/contests/:id", async (request, response) => {
     response.send(snapshot.data());
 });
 
+
 exports.api = onRequest(app);
