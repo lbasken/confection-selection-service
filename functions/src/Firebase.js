@@ -29,7 +29,7 @@ class Firebase {
       .collection(collection)
       .doc(id)
       .get();
-    return Firebase.inflate(snapshot);
+    return Firebase.getSnapshotData(snapshot);
   }
 
   static async update(collection, id, data) {
@@ -51,10 +51,10 @@ class Firebase {
     const snapshot = await Firebase.firestore
       .collection(collection)
       .get();
-    return snapshot.docs.map(Firebase.inflate);
+    return snapshot.docs.map(Firebase.getSnapshotData);
   }
 
-  static inflate(snapshot) {
+  static getSnapshotData(snapshot) {
     return {id: snapshot.ref.id, ...snapshot.data()}
   }
 

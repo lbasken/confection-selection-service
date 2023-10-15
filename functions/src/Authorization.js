@@ -1,6 +1,6 @@
 class Authorization {
 
-  static can(user, resource, filter) {
+  static userCanAccess(user, resource, filter) {
     if (!user) { return false; }
     if (user.role === "admin") { return true; }
     return filter ? filter(user, resource) : false;

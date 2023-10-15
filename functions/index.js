@@ -1,14 +1,16 @@
 const {onRequest} = require("firebase-functions/v2/https");
 const express = require("express");
 const cors = require("cors");
-const Contest = require("./src/Contest");
-const UserMiddleware = require("./src/UserMiddleware");
+const UserController = require("./src/controllers/UserController");
+const ContestController = require("./src/controllers/ContestController");
+const UserMiddleware = require("./src/middleware/UserMiddleware");
 
 const app = express();
 app.use(cors());
 app.use(UserMiddleware.filter);
 
-Contest.start(app);
+UserController.start(app);
+ContestController.start(app);
 
 // app.get("/contestant", async (request, response) => {
 //     const snapshot = await firebase.firestore().collection("contestants").get();
