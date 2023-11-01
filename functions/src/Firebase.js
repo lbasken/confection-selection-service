@@ -55,7 +55,7 @@ class Firebase {
   }
 
   static getSnapshotData(snapshot) {
-    return {id: snapshot.ref.id, ...snapshot.data()}
+    return {...snapshot.data(), id: snapshot.ref.id}
   }
 
 }

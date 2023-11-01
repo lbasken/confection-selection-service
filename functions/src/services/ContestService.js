@@ -28,11 +28,11 @@ class ContestService {
 
   static isContestActive(user, contest) {
     if (contest.active === false) { return false; } // if the contest has been forced to be inactive
-    if (!contest.start || !contest.end) { return false; } // if the contest doesn't have a start and stop, something's wrong
+    if (!contest.start_date || !contest.end_date) { return false; } // if the contest doesn't have a start and stop, something's wrong
     if (!Array.isArray(contest.judges)) { return false; } // no judges array, cannot be active
     if (!contest.judges.includes(user.uid)) { return false; }
     const now = Date.now();
-    return now >= contest.start && now <= contest.end; // check if contest is still "running"
+    return now >= contest.start_date && now <= contest.end_date; // check if contest is still "running"
   }
 
 }
