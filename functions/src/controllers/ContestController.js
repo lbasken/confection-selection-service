@@ -1,6 +1,7 @@
 const Firebase = require("../Firebase");
 const Authorization = require("../Authorization");
 const {getContestResults} = require("../services/ContestService");
+const ContestService = require("../services/ContestService");
 
 class ContestController {
 
@@ -17,7 +18,7 @@ class ContestController {
     app.get("/api/v1/contest/:id", async (request, response) => {
       const contest = await Firebase.read("contests", request.params.id);
       if (!contest) { return response.status(404).send({}); }
-      if (!Authorization.userCanAccess(request.user, contest, () => ContestController.isContestActive(contest))) { return response.status(403).send({}); }
+      if (!Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest))) { return response.status(403).send({}); }
       response.send(contest);
     });
 
@@ -25,7 +26,7 @@ class ContestController {
     app.patch("/api/v1/contest/:id", async (request, response) => {
       let contest = await Firebase.read("contests", request.params.id);
       if (!contest) { return response.status(404).send({}); }
-      if (!Authorization.userCanAccess(request.user, contest, () => ContestController.isContestActive(contest))) { return response.status(403).send({}); }
+      if (!Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest))) { return response.status(403).send({}); }
       contest = await Firebase.update("contests", contest.id, request.body);
       response.send(contest);
     });
@@ -34,7 +35,7 @@ class ContestController {
     app.delete("/api/v1/contest/:id", async (request, response) => {
       const contest = await Firebase.read("contests", request.params.id);
       if (!contest) { return response.status(404).send({}); }
-      if (!Authorization.userCanAccess(request.user, contest, () => ContestController.isContestActive(contest))) { return response.status(403).send({}); }
+      if (!Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest))) { return response.status(403).send({}); }
       await Firebase.delete("contests", contest.id);
       response.send(contest);
     });
@@ -42,7 +43,7 @@ class ContestController {
     // LIST
     app.get("/api/v1/contest", async (request, response) => {
       let contests = await Firebase.list("contests");
-      contests = contests.filter(contest => Authorization.userCanAccess(request.user, contest, () => ContestController.isContestActive(contest)));
+      contests = contests.filter(contest => Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest)));
       response.send(contests);
     });
 
@@ -71,13 +72,6 @@ class ContestController {
 ]
      */
 
-  }
-
-  static isContestActive(contest) {
-    if (contest.active === false) { return false; } // if the contest has been forced to be inactive
-    if (!contest.start || !contest.end) { return false; } // if the contest doesn't have a start and stop, something's wrong
-    const now = Date.now();
-    return now >= contest.start && now <= contest.end; // check if contest is still "running"
   }
 
 }
