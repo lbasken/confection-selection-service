@@ -10,7 +10,9 @@ class ContestController {
     // CREATE
     app.post("/api/v1/contest", async (request, response) => {
       if (!Authorization.userCanAccess(request.user)) { return response.status(403).send({}); }
-      const contest = await Firebase.create("contests", request.body);
+      const data = JSON.parse(JSON.stringify(request.body));
+      delete data.id;
+      const contest = await Firebase.create("contests", data);
       response.send(contest);
     });
 
@@ -27,7 +29,9 @@ class ContestController {
       let contest = await Firebase.read("contests", request.params.id);
       if (!contest) { return response.status(404).send({}); }
       if (!Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest))) { return response.status(403).send({}); }
-      contest = await Firebase.update("contests", contest.id, request.body);
+      const data = JSON.parse(JSON.stringify(request.body));
+      delete data.id;
+      contest = await Firebase.update("contests", contest.id, data);
       response.send(contest);
     });
 
