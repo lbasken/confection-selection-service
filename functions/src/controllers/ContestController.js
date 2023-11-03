@@ -37,23 +37,25 @@ class ContestController {
 
     // DELETE
     app.delete("/api/v1/contest/:id", async (request, response) => {
-      const contest = await Firebase.read("contests", request.params.id);
+      let contest = await Firebase.read("contests", request.params.id);
       if (!contest) { return response.status(404).send({}); }
       if (!Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest))) { return response.status(403).send({}); }
-      await Firebase.delete("contests", contest.id);
+      contest.deleted = true;
+      contest = await Firebase.update("contests", contest.id, contest);
       response.send(contest);
     });
 
     // LIST
     app.get("/api/v1/contest", async (request, response) => {
       let contests = await Firebase.list("contests");
+      contests = contests.filter(contest => !contest.deleted);
       contests = contests.filter(contest => Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest)));
       response.send(contests);
     });
 
     app.get("/api/v1/contest_live", async (request, response) => {
       let contests = await Firebase.list("contests");
-      contests = contests.filter(contest => contest.visible);
+      contests = contests.filter(contest => contest.visible && !contest.deleted);
       contests = contests.filter(contest => Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest)));
       response.send(contests);
     });
