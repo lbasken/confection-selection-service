@@ -51,6 +51,13 @@ class ContestController {
       response.send(contests);
     });
 
+    app.get("/api/v1/contest_live", async (request, response) => {
+      let contests = await Firebase.list("contests");
+      contests = contests.filter(contest => contest.visible);
+      contests = contests.filter(contest => Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest)));
+      response.send(contests);
+    });
+
     app.get("/api/v1/contest/:id/result", async (request, response) => {
       const contest = await Firebase.read("contests", request.params.id);
       if (!contest) { return response.status(404).send({}); }

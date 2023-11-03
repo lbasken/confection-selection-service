@@ -29,7 +29,7 @@ class Firebase {
       .collection(collection)
       .doc(id)
       .get();
-    return Firebase.getSnapshotData(snapshot);
+    return snapshot.exists ? Firebase.getSnapshotData(snapshot) : undefined;
   }
 
   static async update(collection, id, data) {
