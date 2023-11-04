@@ -57,6 +57,9 @@ class ContestController {
       let contests = await Firebase.list("contests");
       contests = contests.filter(contest => contest.visible && !contest.deleted);
       contests = contests.filter(contest => Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest)));
+      for (const contest of contests) {
+        contest.votes = await Firebase.read(`contests/${contest.id}/votes`, request.user.uid);
+      }
       response.send(contests);
     });
 
