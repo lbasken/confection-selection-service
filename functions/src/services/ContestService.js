@@ -1,4 +1,5 @@
 const Firebase = require("../Firebase");
+const Authorization = require("../Authorization");
 
 class ContestService {
 
@@ -33,6 +34,17 @@ class ContestService {
     if (!contest.judges.includes(user.uid)) { return false; }
     const now = Date.now();
     return now >= contest.start_date && now <= contest.end_date; // check if contest is still "running"
+  }
+
+  static async getContests(user, showHidden) {
+    let contests = await Firebase.list("contests");
+    contests = contests.filter(contest => !contest.deleted);
+    if (!showHidden) { contests = contests.filter(contest => contest.visible); }
+    contests = contests.filter(contest => Authorization.userCanAccess(user, contest, () => ContestService.isContestActive(user, contest)));
+    for (const contest of contests) {
+      contest.votes = await Firebase.read(`contests/${contest.id}/votes`, user.uid);
+    }
+    return contests;
   }
 
 }

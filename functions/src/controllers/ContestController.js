@@ -45,24 +45,19 @@ class ContestController {
       response.send(contest);
     });
 
-    // LIST
+    // LIST (all contests, for use by admins)
     app.get("/api/v1/contest", async (request, response) => {
-      let contests = await Firebase.list("contests");
-      contests = contests.filter(contest => !contest.deleted);
-      contests = contests.filter(contest => Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest)));
+      const contests = await ContestService.getContests(request.user, true);
       response.send(contests);
     });
 
+    // LIST (only live contests, for use by regular users)
     app.get("/api/v1/contest_live", async (request, response) => {
-      let contests = await Firebase.list("contests");
-      contests = contests.filter(contest => contest.visible && !contest.deleted);
-      contests = contests.filter(contest => Authorization.userCanAccess(request.user, contest, () => ContestService.isContestActive(request.user, contest)));
-      for (const contest of contests) {
-        contest.votes = await Firebase.read(`contests/${contest.id}/votes`, request.user.uid);
-      }
+      const contests = await ContestService.getContests(request.user, false);
       response.send(contests);
     });
 
+    // Tally up the votes for a contest
     app.get("/api/v1/contest/:id/result", async (request, response) => {
       const contest = await Firebase.read("contests", request.params.id);
       if (!contest) { return response.status(404).send({}); }
@@ -71,22 +66,13 @@ class ContestController {
       response.send({rows, columns: ["name", ...columns]});
     });
 
-    /*
-[
-  {
-    "id": "X7IMMZjTz4hhTv8B5tB9TtsLlb43",
-    "most_festive": "tFHjYrcnPDPOUTYXw0Qmm6lexiQ2",
-    "best_tasting": "X7IMMZjTz4hhTv8B5tB9TtsLlb43",
-    "best_looking": "X7IMMZjTz4hhTv8B5tB9TtsLlb43"
-  },
-  {
-    "id": "tFHjYrcnPDPOUTYXw0Qmm6lexiQ2",
-    "most_festive": "X7IMMZjTz4hhTv8B5tB9TtsLlb43",
-    "best_tasting": "tFHjYrcnPDPOUTYXw0Qmm6lexiQ2",
-    "best_looking": "X7IMMZjTz4hhTv8B5tB9TtsLlb43"
-  }
-]
-     */
+    // Add (or update) a user's votes for a contest
+    app.patch("/api/v1/contest/:id/vote", async (request, response) => {
+      const contest = await Firebase.read("contests", request.params.id);
+      if (!contest || contest.deleted | !contest.visible) { return response.status(404).send({}); }
+      await Firebase.update(`contests/${request.params.id}/votes`, request.user.uid, request.body);
+      response.send(contest);
+    });
 
   }
 
