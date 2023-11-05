@@ -1,6 +1,5 @@
 const Firebase = require("../Firebase");
 const Authorization = require("../Authorization");
-const {getContestResults} = require("../services/ContestService");
 const ContestService = require("../services/ContestService");
 
 class ContestController {
@@ -62,8 +61,8 @@ class ContestController {
       const contest = await Firebase.read("contests", request.params.id);
       if (!contest) { return response.status(404).send({}); }
       // if (!Authorization.userCanAccess(request.user, contest, () => ContestController.isContestActive(contest))) { return response.status(403).send({}); }
-      const {rows, columns} = await getContestResults(contest);
-      response.send({rows, columns: ["name", ...columns]});
+      const {rows, columns, winners} = await ContestService.getContestResults(contest);
+      response.send({rows, columns: ["name", ...columns], winners});
     });
 
     // Add (or update) a user's votes for a contest
