@@ -5,6 +5,12 @@ class UserController {
 
   static start(app) {
 
+    // DELETE (primarily used to delete an account that was created during sign-in)
+    app.delete("/api/v1/user/:id", async (request, response) => {
+      await Firebase.auth.deleteUser(request.user.uid);
+      response.send({});
+    });
+
     // LIST
     app.get("/api/v1/user", async (request, response) => {
       if (!Authorization.userCanAccess(request.user)) { return response.status(403).send({}); }
