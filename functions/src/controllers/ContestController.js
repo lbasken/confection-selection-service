@@ -69,7 +69,9 @@ class ContestController {
     app.patch("/api/v1/contest/:id/vote", async (request, response) => {
       const contest = await Firebase.read("contests", request.params.id);
       if (!contest || contest.deleted | !contest.visible) { return response.status(404).send({}); }
-      await Firebase.update(`contests/${request.params.id}/votes`, request.user.uid, request.body);
+      const votes = JSON.parse(JSON.stringify(request.body));
+      delete votes.id;
+      await Firebase.update(`contests/${request.params.id}/votes`, request.user.uid, votes);
       response.send(contest);
     });
 
