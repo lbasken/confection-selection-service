@@ -1,4 +1,4 @@
-const Firebase = require("../Firebase");
+const Firebase = require("../services/Firebase");
 
 class UserMiddleware {
 

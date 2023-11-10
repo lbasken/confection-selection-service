@@ -1,9 +1,34 @@
-const Firebase = require("../Firebase");
-const Authorization = require("../Authorization");
+const jwt = require("jsonwebtoken");
+const Firebase = require("../services/Firebase");
+const Authorization = require("../services/Authorization");
+const UserService = require("../services/UserService");
 
 class UserController {
 
   static start(app) {
+
+    // Generate an invitation link
+    app.post("/api/v1/user/invite", async (request, response) => {
+      if (!Authorization.userCanAccess(request.user)) { return response.status(403).send({}); }
+      const invitations = await UserService.getOpenInvitationsForEmail(request.body.email);
+      if (invitations?.length) { return response.status(409).send({}); }
+      const invitation = await UserService.createInvitation(request.body.email);
+      response.send({invitation});
+    });
+
+    app.post("/api/v1/user/:email/invited", async (request, response) => {
+      if (!Authorization.userCanAccess(request.user)) { return response.status(403).send({}); }
+      const invitations = await UserService.getOpenInvitationsForEmail(request.params.email);
+      if (invitations?.length) {
+        for (const invitation of invitations) {
+          const id = invitation.id;
+          delete invitation.id;
+          invitation.status = "accepted";
+          await Firebase.firestore.collection("invitations").doc(id).set(invitation);
+        }
+      }
+      response.send({});
+    });
 
     // DELETE (primarily used to delete an account that was created during sign-in)
     app.delete("/api/v1/user/:id", async (request, response) => {

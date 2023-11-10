@@ -1,5 +1,5 @@
-const Firebase = require("../Firebase");
-const Authorization = require("../Authorization");
+const Firebase = require("./Firebase");
+const Authorization = require("./Authorization");
 
 class ContestService {
 
