@@ -65,7 +65,7 @@ class ContestService {
     if (!showHidden) { contests = contests.filter(contest => contest.visible); }
     contests = contests.filter(contest => Authorization.userCanAccess(user, contest, () => ContestService.isContestActive(user, contest)));
     for (const contest of contests) {
-      contest.votes = await Firebase.read(`contests/${contest.id}/votes`, user.uid);
+      contest.votes = (await Firebase.read(`contests/${contest.id}/votes`, user.uid)) ?? {};
     }
     return contests;
   }

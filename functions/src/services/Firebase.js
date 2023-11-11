@@ -40,6 +40,14 @@ class Firebase {
     return Firebase.read(collection, id);
   }
 
+  static async set(collection, id, data) {
+    await Firebase.firestore
+      .collection(collection)
+      .doc(id)
+      .set(data);
+    return Firebase.read(collection, id);
+  }
+
   static async delete(collection, id) {
     await Firebase.firestore
       .collection(collection)

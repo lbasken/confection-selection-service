@@ -71,7 +71,7 @@ class ContestController {
       if (!contest || contest.deleted | !contest.visible) { return response.status(404).send({}); }
       const votes = JSON.parse(JSON.stringify(request.body));
       delete votes.id;
-      await Firebase.update(`contests/${request.params.id}/votes`, request.user.uid, votes);
+      await Firebase.set(`contests/${request.params.id}/votes`, request.user.uid, votes);
       response.send(contest);
     });
 
