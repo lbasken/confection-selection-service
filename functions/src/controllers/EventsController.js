@@ -21,7 +21,6 @@ class EventsController {
       const interval = setInterval(() => {EventsController.ping(response)}, 30000);
 
       request.on("close", () => {
-        console.log("close", unsubscribe);
         unsubscribe();
         clearInterval(interval);
         response.destroy();

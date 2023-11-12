@@ -34,6 +34,7 @@ class UserController {
 
     // DELETE (primarily used to delete an account that was created during sign-in)
     app.delete("/api/v1/user/:id", async (request, response) => {
+      if (!Authorization.userCanAccess(request.user, request.user, user => user.uid === request.params.id)) { return response.status(403).send({}); }
       await Firebase.auth.deleteUser(request.user.uid);
       response.send({});
     });

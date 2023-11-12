@@ -3,6 +3,12 @@ const Authorization = require("./Authorization");
 
 class ContestService {
 
+  static DEFAULT_CATEGORIES = [
+    {id: "best_tasting", label: "Best Tasting"},
+    {id: "most_festive", label: "Most Festive"},
+    {id: "most_creative", label: "Most Creative"}
+  ];
+
   static async getContestResults(contest) {
     const votes = await Firebase.list(`contests/${contest.id}/votes`);
 
@@ -52,11 +58,9 @@ class ContestService {
 
   static isContestActive(user, contest) {
     if (contest.active === false) { return false; } // if the contest has been forced to be inactive
-    if (!contest.start_date || !contest.end_date) { return false; } // if the contest doesn't have a start and stop, something's wrong
     if (!Array.isArray(contest.judges)) { return false; } // no judges array, cannot be active
     if (!contest.judges.includes(user.uid)) { return false; }
-    const now = Date.now();
-    return now >= contest.start_date && now <= contest.end_date; // check if contest is still "running"
+    return true;
   }
 
   static async getContests(user, showHidden) {
@@ -68,6 +72,10 @@ class ContestService {
       contest.votes = (await Firebase.read(`contests/${contest.id}/votes`, user.uid)) ?? {};
     }
     return contests;
+  }
+
+  static getContestCategories(contest) {
+    return contest.categories ?? ContestService.DEFAULT_CATEGORIES;
   }
 
 }
