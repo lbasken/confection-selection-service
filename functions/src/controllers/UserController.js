@@ -9,8 +9,12 @@ class UserController {
 
     // Generate an invitation link
     app.post("/api/v1/user/invite", async (request, response) => {
-      const user = await Firebase.auth.getUserByEmail(request.body.email);
-      if (user) { return response.status(409).send({}); }
+      try {
+        const user = await Firebase.auth.getUserByEmail(request.body.email);
+        if (user) { return response.status(409).send({}); }
+      } catch (error) {
+        console.log(error.message);
+      }
       if (!Authorization.userCanAccess(request.user)) { return response.status(403).send({}); }
       const invitations = await UserService.getOpenInvitationsForEmail(request.body.email);
       if (invitations?.length) { return response.send({invitation: invitations[0]}); }
